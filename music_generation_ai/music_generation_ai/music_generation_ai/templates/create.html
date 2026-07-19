@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create &middot; Music Generation with AI</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand">🎵 Music Generation AI</div>
+    <div class="links">
+        <a href="{{ url_for('create_page') }}" class="active">Home</a>
+        <a href="{{ url_for('about') }}">About</a>
+        <a href="{{ url_for('logout') }}">Logout ({{ username }})</a>
+    </div>
+</nav>
+
+<main class="container">
+    <section class="hero">
+        <h1>Describe your song</h1>
+        <p>Pick a style and mood, and generate an original melody plus matching cover art.</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('generate_route') }}" method="post" id="generate-form">
+        <div class="description-card">
+            <h2>Describe what you want to create</h2>
+            <textarea class="desc-input" name="description"
+                placeholder="A melancholic indie rock song about lost love in the rain..."></textarea>
+
+            <p class="section-label">Style (optional)</p>
+            <div class="pill-group" data-group="style">
+                {% for s in styles %}
+                <button type="button" class="pill" data-value="{{ s }}">{{ s }}</button>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="style" id="style-input">
+
+            <p class="section-label">Emotion (optional)</p>
+            <div class="pill-group" data-group="emotion">
+                {% for e in emotions %}
+                <button type="button" class="pill" data-value="{{ e }}">{{ e }}</button>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="emotion" id="emotion-input">
+
+            <details style="margin-top:18px;">
+                <summary class="section-label" style="cursor:pointer;">Advanced (optional)</summary>
+                <label class="field" style="margin-top:10px;">
+                    Length (notes)
+                    <input type="number" name="num_notes" value="300" min="50" max="1000" step="50">
+                </label>
+            </details>
+
+            <button type="submit" class="gradient-btn" {{ "disabled" if not has_model else "" }}>
+                ✨ Generate
+            </button>
+            {% if not has_model %}
+            <p class="hint">No trained model yet — add training data below, then run
+                <code>python preprocess.py</code> and <code>python train.py</code> in your terminal.</p>
+            {% endif %}
+        </div>
+    </form>
+
+    <section class="pipeline">
+        <h2>Step 1 &middot; Training data</h2>
+        <p class="muted">
+            Currently in <code>data/midi_songs/</code>: <strong>{{ training_file_count }}</strong> file(s).
+            Notes file: {{ "✅ ready" if has_notes else "❌ not found" }} &middot;
+            Trained model: {{ "✅ ready" if has_model else "❌ not found" }}
+        </p>
+        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="midi_files" accept=".mid,.midi" multiple required>
+            <button type="submit" class="btn btn-secondary">Upload MIDI files</button>
+        </form>
+    </section>
+</main>
+
+<footer>
+    <p>Music Generation with AI &middot; Built with Flask, TensorFlow/Keras, music21 &amp; Pollinations.ai</p>
+</footer>
+
+<script>
+document.querySelectorAll('.pill-group').forEach(function (group) {
+    var groupName = group.dataset.group;
+    var hiddenInput = document.getElementById(groupName + '-input');
+    group.querySelectorAll('.pill').forEach(function (pill) {
+        pill.addEventListener('click', function () {
+            var alreadySelected = pill.classList.contains('selected');
+            group.querySelectorAll('.pill').forEach(function (p) { p.classList.remove('selected'); });
+            if (!alreadySelected) {
+                pill.classList.add('selected');
+                hiddenInput.value = pill.dataset.value;
+            } else {
+                hiddenInput.value = '';
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

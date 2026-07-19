@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>About &middot; Music Generation AI</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand">🎵 Music Generation AI</div>
+    <div class="links">
+        <a href="{{ url_for('create_page') }}">Home</a>
+        <a href="{{ url_for('about') }}" class="active">About</a>
+    </div>
+</nav>
+
+<main class="container">
+    <section class="hero">
+        <h1>About this project</h1>
+        <p>An end-to-end deep learning pipeline that learns musical patterns from MIDI files and composes new music, paired with real AI-generated cover art.</p>
+    </section>
+
+    <div class="card">
+        <h2>Tech stack</h2>
+        <ul>
+            <li><strong>music21</strong> &mdash; parsing MIDI files into notes/chords</li>
+            <li><strong>TensorFlow / Keras</strong> &mdash; LSTM sequence model</li>
+            <li><strong>Flask + SQLite</strong> &mdash; web interface and login/signup</li>
+            <li><strong>Pollinations.ai</strong> &mdash; free text-to-image API for cover art</li>
+            <li><strong>NumPy</strong> &mdash; numerical processing</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Pipeline</h2>
+        <ol>
+            <li><code>preprocess.py</code> extracts note/chord events from every MIDI file in <code>data/midi_songs/</code>.</li>
+            <li><code>train.py</code> encodes those events into fixed-length sequences and trains a 3-layer LSTM network.</li>
+            <li><code>generate.py</code> seeds the trained network with a random snippet and autoregressively predicts new notes, shaped by your chosen Style (instrument + creativity) and Emotion (tempo + octave).</li>
+            <li>Predicted notes/chords are converted back into a <code>.mid</code> file you can play or edit.</li>
+            <li><code>image_gen.py</code> sends your description + style/emotion to a free public text-to-image API to create matching cover art.</li>
+        </ol>
+        <p class="hint">
+            Note: the melody model responds to Style/Emotion tags (not the literal words in your description) —
+            true text-understanding music generation needs much larger pretrained models than this project trains
+            from scratch. The cover art, however, is genuine text-to-image generation from your full description.
+        </p>
+    </div>
+</main>
+
+<footer>
+    <p>Music Generation with AI &middot; Built with Flask, TensorFlow/Keras &amp; music21</p>
+</footer>
+</body>
+</html>

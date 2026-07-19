@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Generated Music &middot; Music Generation AI</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.5.0"></script>
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand">🎵 Music Generation AI</div>
+    <div class="links">
+        <a href="{{ url_for('create_page') }}">Home</a>
+        <a href="{{ url_for('about') }}">About</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</nav>
+
+<main class="container">
+    <section class="hero">
+        <h1>Your generated track</h1>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if image_filename %}
+    <div class="card">
+        <h2>Cover art</h2>
+        <img class="cover-art" src="{{ url_for('static', filename='images/generated/' + image_filename) }}" alt="Generated cover art">
+    </div>
+    {% endif %}
+
+    {% if filename %}
+    <div class="card result-card">
+        <h2>{{ filename }}</h2>
+        <p class="muted">Play it right here in the browser, or download the raw .mid file.</p>
+
+        <midi-player
+            src="{{ url_for('play', filename=filename) }}"
+            sound-font
+            visualizer="#midi-visualizer">
+        </midi-player>
+        <midi-visualizer id="midi-visualizer" type="piano-roll"></midi-visualizer>
+
+        <div class="actions">
+            <a href="{{ url_for('download', filename=filename) }}" class="btn btn-primary">Download MIDI</a>
+            <a href="{{ url_for('create_page') }}" class="btn btn-secondary">Generate another</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <p>No generated file found yet. Go back and click "Generate".</p>
+        <a href="{{ url_for('create_page') }}" class="btn btn-primary">Back to Home</a>
+    </div>
+    {% endif %}
+
+    {% if all_outputs %}
+    <section class="pipeline">
+        <h2>Previously generated tracks</h2>
+        <table class="output-table">
+            <thead>
+                <tr><th>File</th><th>Size (KB)</th><th>Created</th><th></th></tr>
+            </thead>
+            <tbody>
+            {% for f in all_outputs %}
+                <tr>
+                    <td>{{ f.name }}</td>
+                    <td>{{ f.size_kb }}</td>
+                    <td>{{ f.modified }}</td>
+                    <td><a href="{{ url_for('download', filename=f.name) }}">Download</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+</main>
+
+<footer>
+    <p>Music Generation with AI &middot; Built with Flask, TensorFlow/Keras &amp; music21</p>
+</footer>
+</body>
+</html>

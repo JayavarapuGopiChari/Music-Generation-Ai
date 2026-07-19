@@ -1,0 +1,7 @@
+flask==3.0.3
+music21==9.1.0
+tensorflow==2.16.1
+numpy==1.26.4
+h5py==3.11.0
+werkzeug==3.0.3
+requests==2.32.3
